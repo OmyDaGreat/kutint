@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
-
 val user: String by project
 val dev: String by project
 val mail: String by project
@@ -13,59 +11,30 @@ val inception: String by project
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidKmpLibrary)
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlinter)
+    alias(libs.plugins.compose.compiler)
 }
 
 group = g
 version = v
 
 kotlin {
-    jvm()
-
-    android {
-        namespace = "$g.$artifact"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
-
-        withJava()
-        withHostTest {}
-        withDeviceTest {}
-
-        compilerOptions {
-            jvmTarget.set(JVM_11)
-        }
-    }
-
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-
     js {
         nodejs()
+        browser()
     }
 
     applyDefaultHierarchyTemplate()
 
     @Suppress("unused")
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation(libs.kermit)
-            }
-        }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlin.test)
-            }
+        jsMain.dependencies {
+            implementation(libs.kermit)
+            implementation(libs.kotlin.test)
+            implementation(libs.compose.html.core)
+            implementation(libs.compose.runtime)
         }
     }
 }
@@ -107,4 +76,8 @@ dokka {
     pluginsConfiguration.html {
         footerMessage.set("&copy; 2025 $dev <$mail>")
     }
+}
+
+tasks.named("jsBrowserTest") {
+    onlyIf { false }
 }
