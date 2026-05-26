@@ -1,0 +1,40 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:xyz.malefic.kutint////PointingToDeclaration/library/xyz.malefic.kutint/index.html
+$dokka.location:xyz.malefic.kutint//hsl/#kotlin.Float#kotlin.Float#kotlin.Float#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/hsl.html
+$dokka.location:xyz.malefic.kutint//parseHex/#kotlin.String/PointingToDeclaration/library/xyz.malefic.kutint/parse-hex.html
+$dokka.location:xyz.malefic.kutint//rgb/#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/rgb.html
+$dokka.location:xyz.malefic.kutint/ColorType///PointingToDeclaration/library/xyz.malefic.kutint/-color-type/index.html
+$dokka.location:xyz.malefic.kutint/HSL///PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/index.html
+$dokka.location:xyz.malefic.kutint/HSL/HSL/#kotlin.Float#kotlin.Float#kotlin.Float#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/-h-s-l.html
+$dokka.location:xyz.malefic.kutint/HSL/alpha/#/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/alpha.html
+$dokka.location:xyz.malefic.kutint/HSL/h/#/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/h.html
+$dokka.location:xyz.malefic.kutint/HSL/l/#/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/l.html
+$dokka.location:xyz.malefic.kutint/HSL/s/#/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/s.html
+$dokka.location:xyz.malefic.kutint/HSL/toString/#/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/to-string.html
+$dokka.location:xyz.malefic.kutint/HSLColorType///PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l-color-type/index.html
+$dokka.location:xyz.malefic.kutint/KutintColor///PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/index.html
+$dokka.location:xyz.malefic.kutint/KutintColor/alpha/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/alpha.html
+$dokka.location:xyz.malefic.kutint/KutintColor/blend/#xyz.malefic.kutint.KutintColor[*]#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/blend.html
+$dokka.location:xyz.malefic.kutint/KutintColor/complement/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/complement.html
+$dokka.location:xyz.malefic.kutint/KutintColor/desaturate/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/desaturate.html
+$dokka.location:xyz.malefic.kutint/KutintColor/dim/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/dim.html
+$dokka.location:xyz.malefic.kutint/KutintColor/grayscale/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/grayscale.html
+$dokka.location:xyz.malefic.kutint/KutintColor/hueRotate/#kotlin.Int/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/hue-rotate.html
+$dokka.location:xyz.malefic.kutint/KutintColor/invert/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/invert.html
+$dokka.location:xyz.malefic.kutint/KutintColor/saturate/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/saturate.html
+$dokka.location:xyz.malefic.kutint/KutintColor/tint/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/tint.html
+$dokka.location:xyz.malefic.kutint/KutintColor/toHSL/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/to-h-s-l.html
+$dokka.location:xyz.malefic.kutint/KutintColor/toRGB/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/to-r-g-b.html
+$dokka.location:xyz.malefic.kutint/KutintColor/withAlpha/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/with-alpha.html
+$dokka.location:xyz.malefic.kutint/KutintColor/withHSL/#kotlin.Function3[kotlin.Float,kotlin.Float,kotlin.Float,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/with-h-s-l.html
+$dokka.location:xyz.malefic.kutint/KutintColor/withRGB/#kotlin.Function3[kotlin.Int,kotlin.Int,kotlin.Int,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/with-r-g-b.html
+$dokka.location:xyz.malefic.kutint/RGB///PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/index.html
+$dokka.location:xyz.malefic.kutint/RGB/RGB/#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/-r-g-b.html
+$dokka.location:xyz.malefic.kutint/RGB/alpha/#/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/alpha.html
+$dokka.location:xyz.malefic.kutint/RGB/b/#/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/b.html
+$dokka.location:xyz.malefic.kutint/RGB/g/#/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/g.html
+$dokka.location:xyz.malefic.kutint/RGB/r/#/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/r.html
+$dokka.location:xyz.malefic.kutint/RGB/toString/#/PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b/to-string.html
+$dokka.location:xyz.malefic.kutint/RGBColorType///PointingToDeclaration/library/xyz.malefic.kutint/-r-g-b-color-type/index.html
+xyz.malefic.kutint

@@ -1,0 +1,1 @@
+sourceset_dependencies='{":library/commonMain":[],":library/jsMain":[":library/webMain"],":library/webMain":[":library/commonMain"]}'
