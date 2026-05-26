@@ -1,9 +1,9 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:xyz.malefic.kutint////PointingToDeclaration/library/xyz.malefic.kutint/index.html
-$dokka.location:xyz.malefic.kutint//hsl/#kotlin.Float#kotlin.Float#kotlin.Float#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/hsl.html
+$dokka.location:xyz.malefic.kutint//hsla/#kotlin.Float#kotlin.Float#kotlin.Float#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/hsla.html
 $dokka.location:xyz.malefic.kutint//parseHex/#kotlin.String/PointingToDeclaration/library/xyz.malefic.kutint/parse-hex.html
-$dokka.location:xyz.malefic.kutint//rgb/#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/rgb.html
+$dokka.location:xyz.malefic.kutint//rgba/#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/rgba.html
 $dokka.location:xyz.malefic.kutint/ColorType///PointingToDeclaration/library/xyz.malefic.kutint/-color-type/index.html
 $dokka.location:xyz.malefic.kutint/HSL///PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/index.html
 $dokka.location:xyz.malefic.kutint/HSL/HSL/#kotlin.Float#kotlin.Float#kotlin.Float#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-h-s-l/-h-s-l.html
