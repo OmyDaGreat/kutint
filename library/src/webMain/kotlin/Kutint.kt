@@ -305,7 +305,7 @@ fun parseHex(hex: String): RGB {
 /**
  * Convenience function to create an [RGB] color
  */
-fun rgb(
+fun rgba(
     r: Int,
     g: Int,
     b: Int,
@@ -315,7 +315,7 @@ fun rgb(
 /**
  * Convenience function to create an [HSL] color
  */
-fun hsl(
+fun hsla(
     h: Float,
     s: Float,
     l: Float,
