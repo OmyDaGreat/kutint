@@ -19,7 +19,7 @@ $dokka.location:xyz.malefic.kutint/KutintColor/blend/#xyz.malefic.kutint.KutintC
 $dokka.location:xyz.malefic.kutint/KutintColor/complement/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/complement.html
 $dokka.location:xyz.malefic.kutint/KutintColor/desaturate/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/desaturate.html
 $dokka.location:xyz.malefic.kutint/KutintColor/dim/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/dim.html
-$dokka.location:xyz.malefic.kutint/KutintColor/grayscale/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/grayscale.html
+$dokka.location:xyz.malefic.kutint/KutintColor/grayscale/#kotlin.Double#kotlin.Double#kotlin.Double/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/grayscale.html
 $dokka.location:xyz.malefic.kutint/KutintColor/hueRotate/#kotlin.Int/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/hue-rotate.html
 $dokka.location:xyz.malefic.kutint/KutintColor/invert/#/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/invert.html
 $dokka.location:xyz.malefic.kutint/KutintColor/saturate/#kotlin.Float/PointingToDeclaration/library/xyz.malefic.kutint/-kutint-color/saturate.html
