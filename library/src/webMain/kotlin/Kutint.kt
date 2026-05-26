@@ -23,8 +23,16 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
     abstract val alpha: Float
 
     /**
-     * Lighten the color by mixing with white
-     * @param amount 0-1, where 0 is no change and 1 is pure white
+     * Lighten a color by mixing with white (increase brightness).
+     *
+     * @param amount Tinting intensity in the range `0f..1f`. Default is `0.2f`.
+     *   - `0f` = no change
+     *   - `0.5f` = 50% towards white
+     *   - `1f` = pure white
+     *
+     * @return A new [RGB] color lightened by the specified amount, preserving alpha.
+     *
+     * Example: `rgba(100, 100, 100).tint(0.3f)` produces a lighter shade of gray.
      */
     fun tint(amount: Float = 0.2f): RGB =
         withRGB { r, g, b ->
@@ -38,8 +46,16 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Darken the color by mixing with black
-     * @param amount 0-1, where 0 is no change and 1 is pure black
+     * Darken a color by mixing with black (decrease brightness).
+     *
+     * @param amount Dimming intensity in the range `0f..1f`. Default is `0.2f`.
+     *   - `0f` = no change
+     *   - `0.5f` = 50% towards black
+     *   - `1f` = pure black
+     *
+     * @return A new [RGB] color darkened by the specified amount, preserving alpha.
+     *
+     * Example: `rgba(200, 200, 200).dim(0.3f)` produces a darker shade of gray.
      */
     fun dim(amount: Float = 0.2f): RGB =
         withRGB { r, g, b ->
@@ -53,7 +69,13 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Invert RGB values
+     * Invert a color to obtain its complementary color (RGB inverse). Note that [complement] should be used for the [HSL] inverse, as it's slightly more accurate in its usage of [Float] for its parameters.
+     *
+     * Performs a simple RGB inversion: each channel is transformed as `255 - channel`.
+     *
+     * @return A new [RGB] color with inverted values, preserving alpha.
+     *
+     * Example: `rgba(255, 0, 0)` (red) inverts to `rgba(0, 255, 255)` (cyan).
      */
     fun invert(): RGB =
         withRGB { r, g, b ->
@@ -66,17 +88,42 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Convert to grayscale using luminosity formula
+     * Convert to grayscale using the luminosity formula.
+     *
+     * Applies the standard human eye luminosity weights (0.299R + 0.587G + 0.114B) to produce
+     * a perceptually accurate grayscale representation. Custom weights can be provided for creative effects.
+     *
+     * @param rWeight Weight for the red channel (default 0.299).
+     * @param gWeight Weight for the green channel (default 0.587).
+     * @param bWeight Weight for the blue channel (default 0.114).
+     *
+     * @return A new grayscale [RGB] color where R=G=B, preserving alpha.
+     *
+     * Example: `rgba(255, 0, 0)` (red) converts to approximately `rgba(76, 76, 76)`.
      */
-    fun grayscale(): RGB =
+    fun grayscale(
+        rWeight: Double = 0.299,
+        gWeight: Double = 0.587,
+        bWeight: Double = 0.114,
+    ): RGB =
         withRGB { r, g, b ->
-            val gray = (0.299 * r + 0.587 * g + 0.114 * b).roundToInt()
+            val gray = (rWeight * r + gWeight * g + bWeight * b).roundToInt()
             RGB(gray, gray, gray, alpha)
         }
 
     /**
-     * Increase color saturation
-     * @param amount 0-1, where 0 is no change
+     * Increase color saturation (make colors more vivid).
+     *
+     * Adjusts the saturation component in HSL color space, increasing color intensity.
+     *
+     * @param amount Saturation boost in the range `0f..1f`. Default is `0.2f`.
+     *   - `0f` = no change
+     *   - `0.5f` = 50% increase in saturation
+     *   - Values clipped to HSL bounds (0-100%).
+     *
+     * @return A new [HSL] color with increased saturation, preserving alpha.
+     *
+     * Example: `rgba(200, 100, 100).saturate(0.3f)` produces a more vibrant red.
      */
     fun saturate(amount: Float = 0.2f): HSL =
         withHSL { h, s, l ->
@@ -85,14 +132,34 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Decrease color saturation
-     * @param amount 0-1, where 0 is no change
+     * Decrease color saturation (make colors more muted/grayscale).
+     *
+     * Adjusts the saturation component in HSL color space, reducing color intensity.
+     *
+     * @param amount Desaturation intensity in the range `0f..1f`. Default is `0.2f`.
+     *   - `0f` = no change
+     *   - `0.5f` = 50% decrease in saturation
+     *   - `1f` = complete desaturation (grayscale)
+     *
+     * @return A new [HSL] color with decreased saturation, preserving alpha.
+     *
+     * Example: `rgba(255, 0, 0).desaturate(0.5f)` produces a muted, brownish tone.
      */
     fun desaturate(amount: Float = 0.2f): HSL = saturate(-amount)
 
     /**
-     * Rotate the hue
-     * @param degrees -360 to 360
+     * Rotate the hue around the color wheel.
+     *
+     * Adjusts the hue component in HSL color space, shifting the color through the spectrum.
+     *
+     * @param degrees Hue rotation in degrees. Default is `30`.
+     *   - Positive values rotate clockwise through the color wheel
+     *   - Negative values rotate counter-clockwise
+     *   - Range wraps around at 360 degrees
+     *
+     * @return A new [HSL] color with rotated hue, preserving saturation/lightness and alpha.
+     *
+     * Example: `rgba(255, 0, 0).hueRotate(120)` produces green; `hueRotate(240)` produces blue.
      */
     fun hueRotate(degrees: Int = 30): HSL =
         withHSL { h, s, l ->
@@ -101,14 +168,32 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Get the complementary color (hue rotated 180 degrees)
+     * Get the complementary color (opposite on the color wheel) using an [HSL] color space.
+     *
+     * Rotates the hue by 180 degrees to obtain the contrasting color.
+     *
+     * @return A new [HSL] color with hue rotated 180 degrees, preserving saturation/lightness and alpha.
+     *
+     * Example: `rgba(255, 0, 0)` (red) has complement `rgba(0, 255, 255)` (cyan).
+     *
+     * @see hueRotate
      */
     fun complement(): HSL = hueRotate(180)
 
     /**
-     * Blend two colors together
-     * @param other The color to blend with
-     * @param amount 0-1, where 0 is this color and 1 is the other color
+     * Blend two colors together using linear interpolation.
+     *
+     * Smoothly transitions between this color and another using a weighted average.
+     *
+     * @param other The target color to blend with.
+     * @param amount Blend proportion in the range `0f..1f`. Default is `0.5f`.
+     *   - `0f` = 100% this color
+     *   - `0.5f` = equal mix of both colors
+     *   - `1f` = 100% other color
+     *
+     * @return A new [RGB] color blended between the two, with alpha also interpolated.
+     *
+     * Example: `rgba(255, 0, 0).blend(rgba(0, 0, 255), 0.5f)` produces purple.
      */
     fun blend(
         other: KutintColor<*>,
@@ -127,15 +212,46 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Helper function to convert to RGB and apply a transformation function
+     * Helper function to convert to RGB and apply a transformation function.
+     *
+     * Converts this color to RGB format and passes the individual components to the provided lambda,
+     * automatically handling HSL-to-RGB conversion if needed.
+     *
+     * @param func A lambda receiving (r: Int, g: Int, b: Int) parameters.
+     * @return The result of the transformation function.
+     *
+     * Example: `color.withRGB { r, g, b -> RGB(r+10, g+10, b+10) }`
      */
     fun <T> withRGB(func: (r: Int, g: Int, b: Int) -> T): T = this.toRGB().let { func(it.r, it.g, it.b) }
 
     /**
-     * Helper function to convert to HSL and apply a transformation function
+     * Helper function to convert to HSL and apply a transformation function.
+     *
+     * Converts this color to HSL format and passes the individual components to the provided lambda,
+     * automatically handling RGB-to-HSL conversion if needed.
+     *
+     * @param func A lambda receiving (h: Float, s: Float, l: Float) parameters.
+     * @return The result of the transformation function.
+     *
+     * Example: `color.withHSL { h, s, l -> HSL(h+30, s, l) }`
      */
     fun <T> withHSL(func: (h: Float, s: Float, l: Float) -> T): T = this.toHSL().let { func(it.h, it.s, it.l) }
 
+    /**
+     * Create a new color with adjusted alpha (opacity).
+     *
+     * Returns a new instance of the same color type with the provided alpha value.
+     * Works with both [RGB] and [HSL] colors.
+     *
+     * @param newAlpha New opacity value in the range `0f..1f`.
+     *   - `0f` = fully transparent
+     *   - `0.5f` = semi-transparent
+     *   - `1f` = fully opaque (default)
+     *
+     * @return A new color with updated alpha, clamped to valid range.
+     *
+     * Example: `rgba(255, 0, 0, 1f).withAlpha(0.5f)` produces a semi-transparent red.
+     */
     fun withAlpha(newAlpha: Float): KutintColor<*> =
         when (this) {
             is RGB -> RGB(r, g, b, newAlpha.coerceIn(0f, 1f))
@@ -143,7 +259,12 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
         }
 
     /**
-     * Converts a given [KutintColor] into an [HSL] color space
+     * Converts a given [KutintColor] into an [HSL] color space representation.
+     *
+     * Handles both RGB-to-HSL conversion (using precise algorithms) and caching for HSL colors.
+     * HSL (Hue, Saturation, Lightness) is useful for hue-based manipulations like color rotation.
+     *
+     * @return An [HSL] representation of this color, preserving alpha.
      */
     fun toHSL(): HSL {
         when (this) {
@@ -190,7 +311,12 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
     }
 
     /**
-     * Converts a given [KutintColor] into an [RGB] color space
+     * Converts a given [KutintColor] into an [RGB] color space representation.
+     *
+     * Handles both HSL-to-RGB conversion (using precise algorithms) and caching for RGB colors.
+     * RGB (Red, Green, Blue) is the standard format for most web applications and CSS.
+     *
+     * @return An [RGB] representation of this color, preserving alpha.
      */
     fun toRGB(): RGB {
         when (this) {
@@ -227,12 +353,18 @@ sealed class KutintColor<T : ColorType> : CSSColorValue {
 }
 
 /**
- * Represents an RGB color.
+ * Represents an RGB color in the standard Red-Green-Blue color space.
+ *
+ * RGB colors are commonly used for web development and CSS styling.
+ * All manipulation functions are available through the [KutintColor] base class.
  *
  * @property r Red channel value in the range `0..255`.
  * @property g Green channel value in the range `0..255`.
  * @property b Blue channel value in the range `0..255`.
  * @property alpha Opacity value in the range `0f..1f` (default `1f`).
+ *
+ * @see HSL for hue-based color manipulations
+ * @see parseHex for parsing hex color strings
  */
 class RGB(
     val r: Int,
@@ -254,12 +386,18 @@ class RGB(
 }
 
 /**
- * Represents an HSL color.
+ * Represents an HSL color in the Hue-Saturation-Lightness color space.
  *
- * @property h Hue in degrees (`0f..360f`).
- * @property s Saturation percentage (`0f..100f`).
- * @property l Lightness percentage (`0f..100f`).
+ * HSL colors are intuitive for color manipulations like rotation, saturation adjustment,
+ * and lightness changes. All manipulation functions are available through the [KutintColor] base class.
+ *
+ * @property h Hue angle in degrees (`0f..360f`). Represents position on the color wheel.
+ * @property s Saturation percentage (`0f..100f`). Represents color intensity (0% = gray, 100% = vivid).
+ * @property l Lightness percentage (`0f..100f`). Represents brightness (0% = black, 100% = white).
  * @property alpha Opacity value in the range `0f..1f` (default `1f`).
+ *
+ * @see RGB for standard web color representation
+ * @see hsla for convenient HSL color creation
  */
 class HSL(
     val h: Float,
@@ -281,7 +419,21 @@ class HSL(
 }
 
 /**
- * Parse a hex color string (#RRGGBB or #RRGGBBAA) into [RGB]
+ * Parse a hex color string into an [RGB] color.
+ *
+ * Supports both 6-digit (#RRGGBB) and 8-digit (#RRGGBBAA) hex formats.
+ * The `#` prefix is optional (automatically stripped if present).
+ *
+ * @param hex A hex color string in the format `#RRGGBB` or `#RRGGBBAA` (# optional).
+ * @return An [RGB] color parsed from the hex string.
+ * @throws IllegalArgumentException if the hex string format is invalid.
+ *
+ * Example:
+ * ```
+ * parseHex("#FF0000")      // Red (1f alpha)
+ * parseHex("#00FF0080")    // Green (0.5f alpha)
+ * parseHex("0000FF")       // Blue (no prefix)
+ * ```
  */
 fun parseHex(hex: String): RGB {
     val cleanHex = hex.removePrefix("#").uppercase()
@@ -303,7 +455,16 @@ fun parseHex(hex: String): RGB {
 }
 
 /**
- * Convenience function to create an [RGB] color
+ * Convenience function to create an [RGB] color.
+ *
+ * @param r Red channel value (`0-255`).
+ * @param g Green channel value (`0-255`).
+ * @param b Blue channel value (`0-255`).
+ * @param alpha Opacity value (`0f-1f`, default `1f`).
+ * @return A new [RGB] color instance with the specified values.
+ * @throws IllegalArgumentException if values are out of valid ranges.
+ *
+ * Example: `rgba(255, 128, 64, 0.5f)`
  */
 fun rgba(
     r: Int,
@@ -313,7 +474,16 @@ fun rgba(
 ): RGB = RGB(r, g, b, alpha)
 
 /**
- * Convenience function to create an [HSL] color
+ * Convenience function to create an [HSL] color.
+ *
+ * @param h Hue angle in degrees (`0f-360f`).
+ * @param s Saturation percentage (`0f-100f`).
+ * @param l Lightness percentage (`0f-100f`).
+ * @param alpha Opacity value (`0f-1f`, default `1f`).
+ * @return A new [HSL] color instance with the specified values.
+ * @throws IllegalArgumentException if values are out of valid ranges.
+ *
+ * Example: `hsla(180f, 50f, 50f, 1f)`
  */
 fun hsla(
     h: Float,

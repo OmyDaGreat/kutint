@@ -28,7 +28,6 @@ kotlin {
 
     applyDefaultHierarchyTemplate()
 
-    @Suppress("unused")
     sourceSets {
         jsMain.dependencies {
             implementation(libs.kermit)
