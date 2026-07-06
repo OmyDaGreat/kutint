@@ -3,7 +3,7 @@ kotlin = "2.3.21"
 kotlinter = "5.5.0"
 kermit = "2.1.0"
 dokka = "2.2.0"
-compose-html = "1.11.0"
+compose-html = "1.11.1"
 compose-runtime = "1.11.2"
 kobweb = "0.24.0"
 
