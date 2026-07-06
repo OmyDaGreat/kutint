@@ -17,7 +17,7 @@ kobweb-silk = { module = "com.varabyte.kobweb:kobweb-silk", version.ref = "kobwe
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.36.0" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
