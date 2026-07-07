@@ -245,59 +245,12 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
         }
 
     /**
-     * An [HSL] representation of the current color.
-     */
-    val hsl: HSL get() {
-        when (this) {
-            is HSL -> {
-                return this
-            }
-
-            is RGB -> {
-                val rNorm = r / 255f
-                val gNorm = g / 255f
-                val bNorm = b / 255f
-
-                val maxChannel = max(rNorm, max(gNorm, bNorm))
-                val minChannel = min(rNorm, min(gNorm, bNorm))
-                val delta = maxChannel - minChannel
-                val lightness = (maxChannel + minChannel) / 2
-
-                if (delta == 0f) {
-                    return HSL(0f, 0f, lightness * 100f, alpha)
-                }
-
-                val saturation =
-                    if (lightness < 0.5) {
-                        delta / (maxChannel + minChannel)
-                    } else {
-                        delta / (2 - maxChannel - minChannel)
-                    }
-
-                val hue =
-                    when (maxChannel) {
-                        rNorm -> ((gNorm - bNorm) / delta + if (gNorm < bNorm) 6f else 0f) * 60f
-                        gNorm -> ((bNorm - rNorm) / delta + 2f) * 60f
-                        else -> ((rNorm - gNorm) / delta + 4f) * 60f
-                    }
-
-                return HSL(
-                    h = hue % 360f,
-                    s = saturation * 100f,
-                    l = lightness * 100f,
-                    alpha = alpha,
-                )
-            }
-        }
-    }
-
-    /**
      * An [RGB] representation of the current color.
      */
-    val rgb: RGB get() {
+    val rgb: RGB by lazy {
         when (this) {
             is RGB -> {
-                return this
+                this
             }
 
             is HSL -> {
@@ -317,10 +270,57 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
                         else -> Triple(c, 0f, x)
                     }
 
-                return RGB(
+                RGB(
                     r = ((rPrime + m) * 255).roundToInt(),
                     g = ((gPrime + m) * 255).roundToInt(),
                     b = ((bPrime + m) * 255).roundToInt(),
+                    alpha = alpha,
+                )
+            }
+        }
+    }
+
+    /**
+     * An [HSL] representation of the current color.
+     */
+    val hsl: HSL by lazy {
+        when (this) {
+            is HSL -> {
+                this
+            }
+
+            is RGB -> {
+                val rNorm = r / 255f
+                val gNorm = g / 255f
+                val bNorm = b / 255f
+
+                val maxChannel = max(rNorm, max(gNorm, bNorm))
+                val minChannel = min(rNorm, min(gNorm, bNorm))
+                val delta = maxChannel - minChannel
+                val lightness = (maxChannel + minChannel) / 2
+
+                if (delta == 0f) {
+                    return@lazy HSL(0f, 0f, lightness * 100f, alpha)
+                }
+
+                val saturation =
+                    if (lightness < 0.5) {
+                        delta / (maxChannel + minChannel)
+                    } else {
+                        delta / (2 - maxChannel - minChannel)
+                    }
+
+                val hue =
+                    when (maxChannel) {
+                        rNorm -> ((gNorm - bNorm) / delta + if (gNorm < bNorm) 6f else 0f) * 60f
+                        gNorm -> ((bNorm - rNorm) / delta + 2f) * 60f
+                        else -> ((rNorm - gNorm) / delta + 4f) * 60f
+                    }
+
+                HSL(
+                    h = hue % 360f,
+                    s = saturation * 100f,
+                    l = lightness * 100f,
                     alpha = alpha,
                 )
             }
