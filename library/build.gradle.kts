@@ -1,13 +1,13 @@
-val user: String by project
-val dev: String by project
-val mail: String by project
-val devURL: String by project
-val repo: String by project
-val g: String by project
-val artifact: String by project
-val v: String by project
-val desc: String by project
-val inception: String by project
+val user = project.property("user") as String
+val dev = project.property("dev") as String
+val mail = project.property("mail") as String
+val devURL = project.property("devURL") as String
+val repo = project.property("repo") as String
+val g = project.property("group") as String
+val artifact = project.property("artifact") as String
+val v = project.property("version") as String
+val desc = project.property("desc") as String
+val inception = project.property("inception") as String
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -73,7 +73,7 @@ mavenPublishing {
 
 dokka {
     pluginsConfiguration.html {
-        footerMessage.set("&copy; 2025 $dev <$mail>")
+        footerMessage.set("&copy; 2026 $dev <$mail>")
     }
 }
 

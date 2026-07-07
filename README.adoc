@@ -32,54 +32,8 @@ sourceSets {
 
 == Features
 
-=== Color Extensions
-
-This library provides a comprehensive set of extension functions for working with colors in Kobweb and Compose HTML. You can easily convert between different color formats, manipulate colors, and create custom color schemes. Since `KutintColor` extends `CSSColorValue`, you can seamlessly use these extensions with any color parameters in functions that ask for such.
-
-==== Brightness & Lightness
-
-`tint(amount: Float = 0.2f)`: Lighten a color by mixing it with white. Parameter ranges from 0 (no change) to 1 (pure white).
-
-`dim(amount: Float = 0.2f)`: Darken a color by mixing it with black. Parameter ranges from 0 (no change) to 1 (pure black).
-
-==== Color Inversion
-
-`invert()`: Invert a color to obtain its complementary RGB-based inverse. Each channel is transformed as `255 - channel`.
-
-`grayscale()`: Convert a color to grayscale using the standard luminosity formula (0.299R + 0.587G + 0.114B) or a custom weighting scale.
-
-==== Saturation
-
-`saturate(amount: Float = 0.2f)`: Increase color saturation to make colors more vivid. Parameter ranges from 0 (no change) to 1 (full saturation).
-
-`desaturate(amount: Float = 0.2f)`: Decrease color saturation to make colors more muted. Parameter ranges from 0 (no change) to 1 (full desaturation).
-
-==== Hue Manipulation
-
-`hueRotate(degrees: Int = 30)`: Rotate the hue around the color wheel. Positive values rotate clockwise; negative values rotate counter-clockwise.
-
-`complement()`: Get the complementary color (hue rotated 180 degrees) for high-contrast color schemes.
-
-==== Color Blending
-
-`blend(other: KutintColor<*>, amount: Float = 0.5f)`: Blend two colors together using linear interpolation. Parameter ranges from 0 (this color) to 1 (other color).
-
-==== Opacity
-
-`withAlpha(newAlpha: Float)`: Create a new color with adjusted alpha (opacity). Parameter ranges from 0f (fully transparent) to 1f (fully opaque).
-
-==== Color Space Utils
-
-`toRGB()`: Convert to RGB color space.
-
-`toHSL()`: Convert to HSL color space.
-
-`rgba(r: Int, g: Int, b: Int, alpha: Float = 1f)`: Convenience function to create an RGB color.
-
-`hsla(h: Float, s: Float, l: Float, alpha: Float = 1f)`: Convenience function to create an HSL color.
-
-`parseHex(hex: String)`: Parse a hex color string (\#RRGGBB or #RRGGBBAA) into an RGB color. The `#` prefix is optional.
-
+- Dynamic color manipulation and conversion, including between and around both RGB and HSL color spaces
+- Decent Dokka documentation: https://omydagreat.github.io/kutint/
 
 == License
 
@@ -90,8 +44,7 @@ This template is licensed under the MIT License. See the link:LICENSE[] file for
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+4. Submit a pull request
 
 == Resources
 
