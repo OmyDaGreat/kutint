@@ -203,7 +203,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return The result of the function.
      */
-    fun <T> withRGB(func: (r: Int, g: Int, b: Int) -> T): T = this.rgb.let { func(it.r, it.g, it.b) }
+    inline fun <T> withRGB(func: (r: Int, g: Int, b: Int) -> T): T = this.rgb.let { func(it.r, it.g, it.b) }
 
     /**
      * Utility function for switching the HSL color space and performing an operation on the channels.
@@ -212,7 +212,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return The result of the function.
      */
-    fun <T> withHSL(func: (h: Float, s: Float, l: Float) -> T): T = this.hsl.let { func(it.h, it.s, it.l) }
+    inline fun <T> withHSL(func: (h: Float, s: Float, l: Float) -> T): T = this.hsl.let { func(it.h, it.s, it.l) }
 
     /**
      * Creates a new color with the given alpha value.
