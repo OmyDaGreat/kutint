@@ -33,6 +33,16 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
     abstract val alpha: Float
 
     /**
+     * An [RGB] representation of the current color.
+     */
+    abstract val rgb: RGB
+
+    /**
+     * An [HSL] representation of the current color.
+     */
+    abstract val hsl: HSL
+
+    /**
      * Tints the color, using a linear interpolation between the original color and white in the RGB color space, by a given amount.
      *
      * @param amount The amount to tint the color `0 to 1`.
@@ -43,9 +53,9 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
         withRGB { r, g, b ->
             val clipped = amount.coerceIn(0f, 1f)
             RGB(
-                r = (r + (255 - r) * clipped).roundToInt(),
-                g = (g + (255 - g) * clipped).roundToInt(),
-                b = (b + (255 - b) * clipped).roundToInt(),
+                r = r + (255f - r) * clipped,
+                g = g + (255f - g) * clipped,
+                b = b + (255f - b) * clipped,
                 alpha = alpha,
             )
         }
@@ -61,9 +71,9 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
         withRGB { r, g, b ->
             val clipped = amount.coerceIn(0f, 1f)
             RGB(
-                r = (r - r * clipped).roundToInt(),
-                g = (g - g * clipped).roundToInt(),
-                b = (b - b * clipped).roundToInt(),
+                r = r - r * clipped,
+                g = g - g * clipped,
+                b = b - b * clipped,
                 alpha = alpha,
             )
         }
@@ -76,9 +86,9 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
     fun invert(): RGB =
         withRGB { r, g, b ->
             RGB(
-                r = 255 - r,
-                g = 255 - g,
-                b = 255 - b,
+                r = 255f - r,
+                g = 255f - g,
+                b = 255f - b,
                 alpha = alpha,
             )
         }
@@ -90,7 +100,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      */
     fun grayscale(): RGB =
         withRGB { r, g, b ->
-            val gray = (0.2126 * r + 0.7152 * g + 0.0722 * b).roundToInt()
+            val gray = (0.2126f * r + 0.7152f * g + 0.0722f * b)
             RGB(gray, gray, gray, alpha)
         }
 
@@ -174,9 +184,9 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
             other.withRGB { r2, g2, b2 ->
                 val clipped = amount.coerceIn(0f, 1f)
                 RGB(
-                    r = (r1 + (r2 - r1) * clipped).roundToInt(),
-                    g = (g1 + (g2 - g1) * clipped).roundToInt(),
-                    b = (b1 + (b2 - b1) * clipped).roundToInt(),
+                    r = r1 + (r2 - r1) * clipped,
+                    g = g1 + (g2 - g1) * clipped,
+                    b = b1 + (b2 - b1) * clipped,
                     alpha = alpha + (other.alpha - alpha) * clipped,
                 )
             }
@@ -189,7 +199,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      */
     fun luminance(): Double =
         withRGB { r, g, b ->
-            fun adjust(c: Int): Double {
+            fun adjust(c: Float): Double {
                 val s = c / 255.0
                 return if (s <= 0.03928) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
             }
@@ -203,7 +213,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return The result of the function.
      */
-    inline fun <T> withRGB(func: (r: Int, g: Int, b: Int) -> T): T = this.rgb.let { func(it.r, it.g, it.b) }
+    inline fun <T> withRGB(func: (r: Float, g: Float, b: Float) -> T): T = this.rgb.let { func(it.r, it.g, it.b) }
 
     /**
      * Utility function for switching the HSL color space and performing an operation on the channels.
@@ -232,100 +242,17 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      */
     fun toHex(includeAlpha: Boolean = alpha < 1f): String =
         withRGB { r, g, b ->
-            val rHex = r.toString(16).padStart(2, '0')
-            val gHex = g.toString(16).padStart(2, '0')
-            val bHex = b.toString(16).padStart(2, '0')
+            val rHex = r.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
+            val gHex = g.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
+            val bHex = b.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
             val aHex =
                 if (includeAlpha) {
-                    (alpha * 255).roundToInt().toString(16).padStart(2, '0')
+                    (alpha * 255).roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
                 } else {
                     ""
                 }
             "#$rHex$gHex$bHex$aHex".uppercase()
         }
-
-    /**
-     * An [RGB] representation of the current color.
-     */
-    val rgb: RGB by lazy {
-        when (this) {
-            is RGB -> {
-                this
-            }
-
-            is HSL -> {
-                val sNorm = s / 100f
-                val lNorm = l / 100f
-                val c = (1f - abs(2f * lNorm - 1f)) * sNorm
-                val x = c * (1f - abs((h / 60f) % 2f - 1f))
-                val m = lNorm - c / 2f
-
-                val (rPrime, gPrime, bPrime) =
-                    when {
-                        h < 60f -> Triple(c, x, 0f)
-                        h < 120f -> Triple(x, c, 0f)
-                        h < 180f -> Triple(0f, c, x)
-                        h < 240f -> Triple(0f, x, c)
-                        h < 300f -> Triple(x, 0f, c)
-                        else -> Triple(c, 0f, x)
-                    }
-
-                RGB(
-                    r = ((rPrime + m) * 255).roundToInt(),
-                    g = ((gPrime + m) * 255).roundToInt(),
-                    b = ((bPrime + m) * 255).roundToInt(),
-                    alpha = alpha,
-                )
-            }
-        }
-    }
-
-    /**
-     * An [HSL] representation of the current color.
-     */
-    val hsl: HSL by lazy {
-        when (this) {
-            is HSL -> {
-                this
-            }
-
-            is RGB -> {
-                val rNorm = r / 255f
-                val gNorm = g / 255f
-                val bNorm = b / 255f
-
-                val maxChannel = max(rNorm, max(gNorm, bNorm))
-                val minChannel = min(rNorm, min(gNorm, bNorm))
-                val delta = maxChannel - minChannel
-                val lightness = (maxChannel + minChannel) / 2
-
-                if (delta == 0f) {
-                    return@lazy HSL(0f, 0f, lightness * 100f, alpha)
-                }
-
-                val saturation =
-                    if (lightness < 0.5) {
-                        delta / (maxChannel + minChannel)
-                    } else {
-                        delta / (2 - maxChannel - minChannel)
-                    }
-
-                val hue =
-                    when (maxChannel) {
-                        rNorm -> ((gNorm - bNorm) / delta + if (gNorm < bNorm) 6f else 0f) * 60f
-                        gNorm -> ((bNorm - rNorm) / delta + 2f) * 60f
-                        else -> ((rNorm - gNorm) / delta + 4f) * 60f
-                    }
-
-                HSL(
-                    h = hue % 360f,
-                    s = saturation * 100f,
-                    l = lightness * 100f,
-                    alpha = alpha,
-                )
-            }
-        }
-    }
 }
 
 /**
@@ -337,16 +264,54 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
  * @property alpha Alpha channel `0-1`
  */
 data class RGB(
-    val r: Int,
-    val g: Int,
-    val b: Int,
+    val r: Float,
+    val g: Float,
+    val b: Float,
     override val alpha: Float = 1f,
 ) : KutintColor<RGBColorSpace>() {
     init {
-        require(r in 0..255) { "Red channel (r) must be between 0 and 255, got $r" }
-        require(g in 0..255) { "Green channel (g) must be between 0 and 255, got $g" }
-        require(b in 0..255) { "Blue channel (b) must be between 0 and 255, got $b" }
+        require(r in 0f..255f) { "Red channel (r) must be between 0 and 255, got $r" }
+        require(g in 0f..255f) { "Green channel (g) must be between 0 and 255, got $g" }
+        require(b in 0f..255f) { "Blue channel (b) must be between 0 and 255, got $b" }
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
+    }
+
+    override val rgb: RGB get() = this
+
+    override val hsl: HSL by lazy {
+        val rNorm = r / 255f
+        val gNorm = g / 255f
+        val bNorm = b / 255f
+
+        val maxChannel = max(rNorm, max(gNorm, bNorm))
+        val minChannel = min(rNorm, min(gNorm, bNorm))
+        val delta = maxChannel - minChannel
+        val lightness = (maxChannel + minChannel) / 2
+
+        if (delta == 0f) {
+            return@lazy HSL(0f, 0f, lightness * 100f, alpha)
+        }
+
+        val saturation =
+            if (lightness < 0.5) {
+                delta / (maxChannel + minChannel)
+            } else {
+                delta / (2 - maxChannel - minChannel)
+            }
+
+        val hue =
+            when (maxChannel) {
+                rNorm -> ((gNorm - bNorm) / delta + if (gNorm < bNorm) 6f else 0f) * 60f
+                gNorm -> ((bNorm - rNorm) / delta + 2f) * 60f
+                else -> ((rNorm - gNorm) / delta + 4f) * 60f
+            }
+
+        HSL(
+            h = hue % 360f,
+            s = saturation * 100f,
+            l = lightness * 100f,
+            alpha = alpha,
+        )
     }
 
     override fun withAlpha(newAlpha: Float): RGB = RGB(r, g, b, newAlpha.coerceIn(0f, 1f))
@@ -375,6 +340,33 @@ data class HSL(
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
     }
 
+    override val hsl: HSL get() = this
+
+    override val rgb: RGB by lazy {
+        val sNorm = s / 100f
+        val lNorm = l / 100f
+        val c = (1f - abs(2f * lNorm - 1f)) * sNorm
+        val x = c * (1f - abs((h / 60f) % 2f - 1f))
+        val m = lNorm - c / 2f
+
+        val (rPrime, gPrime, bPrime) =
+            when {
+                h < 60f -> Triple(c, x, 0f)
+                h < 120f -> Triple(x, c, 0f)
+                h < 180f -> Triple(0f, c, x)
+                h < 240f -> Triple(0f, x, c)
+                h < 300f -> Triple(x, 0f, c)
+                else -> Triple(c, 0f, x)
+            }
+
+        RGB(
+            r = (rPrime + m) * 255,
+            g = (gPrime + m) * 255,
+            b = (bPrime + m) * 255,
+            alpha = alpha,
+        )
+    }
+
     override fun withAlpha(newAlpha: Float): HSL = HSL(h, s, l, newAlpha.coerceIn(0f, 1f))
 
     override fun toString(): String = "hsla($h, $s%, $l%, $alpha)"
@@ -397,9 +389,9 @@ fun parseHex(hex: String): RGB {
             else -> throw IllegalArgumentException("Hex color must be 3, 4, 6, or 8 digits, got $hex")
         }
 
-    val r = parsedHex.substring(0, 2).toInt(16)
-    val g = parsedHex.substring(2, 4).toInt(16)
-    val b = parsedHex.substring(4, 6).toInt(16)
+    val r = parsedHex.substring(0, 2).toInt(16).toFloat()
+    val g = parsedHex.substring(2, 4).toInt(16).toFloat()
+    val b = parsedHex.substring(4, 6).toInt(16).toFloat()
     val alpha =
         if (parsedHex.length == 8) {
             parsedHex.substring(6, 8).toInt(16) / 255f
@@ -424,14 +416,14 @@ fun parseHex(
 ): RGB =
     if (hasAlpha) {
         val a = (color shr 24 and 0xFF) / 255f
-        val r = (color shr 16 and 0xFF)
-        val g = (color shr 8 and 0xFF)
-        val b = (color and 0xFF)
+        val r = (color shr 16 and 0xFF).toFloat()
+        val g = (color shr 8 and 0xFF).toFloat()
+        val b = (color and 0xFF).toFloat()
         RGB(r, g, b, a)
     } else {
-        val r = (color shr 16 and 0xFF)
-        val g = (color shr 8 and 0xFF)
-        val b = (color and 0xFF)
+        val r = (color shr 16 and 0xFF).toFloat()
+        val g = (color shr 8 and 0xFF).toFloat()
+        val b = (color and 0xFF).toFloat()
         RGB(r, g, b, 1f)
     }
 
@@ -446,11 +438,11 @@ fun parseHex(
  * @return The parsed [RGB] color.
  */
 fun rgba(
-    r: Int,
-    g: Int,
-    b: Int,
-    alpha: Float = 1f,
-): RGB = RGB(r, g, b, alpha)
+    r: Number,
+    g: Number,
+    b: Number,
+    alpha: Number = 1f,
+): RGB = RGB(r.toFloat(), g.toFloat(), b.toFloat(), alpha.toFloat())
 
 /**
  * Utility function for creating an [HSL] color from HSL values.
@@ -463,8 +455,8 @@ fun rgba(
  * @return The parsed [HSL] color.
  */
 fun hsla(
-    h: Float,
-    s: Float,
-    l: Float,
-    alpha: Float = 1f,
-): HSL = HSL(h, s, l, alpha)
+    h: Number,
+    s: Number,
+    l: Number,
+    alpha: Number = 1f,
+): HSL = HSL(h.toFloat(), s.toFloat(), l.toFloat(), alpha.toFloat())

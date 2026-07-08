@@ -31,7 +31,6 @@ kotlin {
     sourceSets {
         jsMain.dependencies {
             implementation(libs.kermit)
-            implementation(libs.kotlin.test)
             implementation(libs.compose.html.core)
             implementation(libs.compose.runtime)
         }
