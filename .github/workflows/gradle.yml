@@ -23,7 +23,7 @@ jobs:
       with:
         java-version: '25'
         distribution: 'temurin'
-    - name: Build with Gradle
+    - name: Set up Gradle
       uses: gradle/actions/setup-gradle@v6
-    - name: Run matrix target
-      run: ./gradlew jsTest
+    - name: Run Build
+      run: ./gradlew build

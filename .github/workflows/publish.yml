@@ -37,13 +37,8 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
-      - name: Setup Gradle
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: "9.6.1"
-
-      - name: Make gradlew Executable
-        run: chmod +x gradlew
 
       - name: Install xmllint
         run: brew install libxml2 && brew link --force libxml2
