@@ -2,6 +2,7 @@ package xyz.malefic.kutint
 
 import androidx.compose.runtime.Immutable
 import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import org.jetbrains.compose.web.css.CSSColorValue
 import kotlin.math.abs
 import kotlin.math.max
@@ -250,9 +251,9 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
      * @return The contrast ratio `1-21`.
      */
     fun contrastRatio(other: Kutint<*>): Double {
-        val lum1 = this.luminance()
-        val lum2 = other.luminance()
-        return (max(lum1, lum2) + 0.05) / (min(lum1, lum2) + 0.05)
+        val y1 = this.luminance()
+        val y2 = other.luminance()
+        return (max(y1, y2) + 0.05) / (min(y1, y2) + 0.05)
     }
 
     /**
@@ -277,7 +278,7 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
      *
      * @return The better contrast color.
      */
-    fun contrast() = betterContrast(parseHex("#000000"), parseHex("#FFFFFF"))
+    fun contrast() = betterContrast(Colors.Black.kutint, Colors.White.kutint)
 
     /**
      * Converts the color to a hex string.
@@ -318,6 +319,18 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
                 }
             "#$rHex$gHex$bHex$aHex".uppercase()
         }
+
+    companion object {
+        /**
+         * Extension field to convert a [Color.Rgb] color to an [RGB] color.
+         */
+        val Color.Rgb.kutint get() = RGB(this.red.toFloat(), this.green.toFloat(), this.blue.toFloat(), this.alpha.toFloat())
+
+        /**
+         * Extension field to convert a [Color.Hsl] color to an [HSL] color.
+         */
+        val Color.Hsl.kutint get() = HSL(this.hue, this.saturation, this.lightness, this.alpha)
+    }
 }
 
 /**
