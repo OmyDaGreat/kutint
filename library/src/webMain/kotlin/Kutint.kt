@@ -1,5 +1,6 @@
 package xyz.malefic.kutint
 
+import androidx.compose.runtime.Immutable
 import com.varabyte.kobweb.compose.ui.graphics.Color
 import org.jetbrains.compose.web.css.CSSColorValue
 import kotlin.math.abs
@@ -9,7 +10,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
- * Represents the color space of a [KutintColor].
+ * Represents the color space of a [Kutint].
  */
 sealed class ColorSpace
 
@@ -28,7 +29,8 @@ object HSLColorSpace : ColorSpace()
  *
  * Includes a variety of functions for working with colors in Kobweb and Compose HTML.
  */
-sealed class KutintColor<T : ColorSpace> : CSSColorValue {
+@Immutable
+sealed class Kutint<T : ColorSpace> : CSSColorValue {
     /**
      * The alpha channel of the color, shared across color spaces.
      */
@@ -184,7 +186,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      * @return The blended color as an [RGB].
      */
     fun blend(
-        other: KutintColor<*>,
+        other: Kutint<*>,
         amount: Float = 0.5f,
     ): RGB =
         withRGB { r1, g1, b1 ->
@@ -220,7 +222,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return The result of the function.
      */
-    inline fun <T> withRGB(func: (r: Float, g: Float, b: Float) -> T): T = this.rgb.let { func(it.r, it.g, it.b) }
+    inline fun <R> withRGB(func: (r: Float, g: Float, b: Float) -> R): R = this.rgb.let { func(it.r, it.g, it.b) }
 
     /**
      * Utility function for switching the HSL color space and performing an operation on the channels.
@@ -229,7 +231,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return The result of the function.
      */
-    inline fun <T> withHSL(func: (h: Float, s: Float, l: Float) -> T): T = this.hsl.let { func(it.h, it.s, it.l) }
+    inline fun <R> withHSL(func: (h: Float, s: Float, l: Float) -> R): R = this.hsl.let { func(it.h, it.s, it.l) }
 
     /**
      * Creates a new color with the given alpha value.
@@ -238,7 +240,7 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      *
      * @return A new color with the given alpha value.
      */
-    abstract infix fun withAlpha(newAlpha: Float): KutintColor<T>
+    abstract infix fun withAlpha(newAlpha: Float): Kutint<T>
 
     /**
      * Converts the color to a hex string.
@@ -289,12 +291,13 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
  * @property b Blue channel `0-255`
  * @property alpha Alpha channel `0-1`
  */
+@Immutable
 data class RGB(
     val r: Float,
     val g: Float,
     val b: Float,
     override val alpha: Float = 1f,
-) : KutintColor<RGBColorSpace>() {
+) : Kutint<RGBColorSpace>() {
     init {
         require(r in 0f..255f) { "Red channel (r) must be between 0 and 255, got $r" }
         require(g in 0f..255f) { "Green channel (g) must be between 0 and 255, got $g" }
@@ -302,7 +305,7 @@ data class RGB(
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
     }
 
-    override val color = Color.rgba(r, g, b, alpha)
+    override val color = Color.rgba(r / 255f, g / 255f, b / 255f, alpha)
 
     override val rgb: RGB get() = this
 
@@ -355,12 +358,13 @@ data class RGB(
  * @property l Lightness channel `0-100`
  * @property alpha Alpha channel `0-1`
  */
+@Immutable
 data class HSL(
     val h: Float,
     val s: Float,
     val l: Float,
     override val alpha: Float = 1f,
-) : KutintColor<HSLColorSpace>() {
+) : Kutint<HSLColorSpace>() {
     init {
         require(h in 0f..360f) { "Hue channel (h) must be between 0f and 360f, got $h" }
         require(s in 0f..100f) { "Saturation channel (s) must be between 0f and 100f, got $s" }
