@@ -250,7 +250,7 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
      *
      * @return The contrast ratio `1-21`.
      */
-    fun contrastRatio(other: Kutint<*>): Double {
+    infix fun contrastRatio(other: Kutint<*>): Double {
         val y1 = this.luminance()
         val y2 = other.luminance()
         return (max(y1, y2) + 0.05) / (min(y1, y2) + 0.05)
@@ -259,26 +259,18 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
     /**
      * Calculates the better contrast color between two colors.
      *
-     * @param optionA The first color to compare.
-     * @param optionB The second color to compare.
+     * @param options The colors to compare. Should not be empty
      *
      * @return The better contrast color.
      */
-    fun betterContrast(
-        optionA: Kutint<*>,
-        optionB: Kutint<*>,
-    ) = if (contrastRatio(optionA) > contrastRatio(optionB)) {
-        optionA
-    } else {
-        optionB
-    }
+    fun bestContrast(vararg options: Kutint<*> = arrayOf(this)) = options.maxByOrNull { contrastRatio(it) } ?: options[0]
 
     /**
-     * Calculates whether black of white is a better contrast for the color.
+     * Calculates whether black or white is a better contrast for the color.
      *
      * @return The better contrast color.
      */
-    fun contrast() = betterContrast(Colors.Black.kutint, Colors.White.kutint)
+    fun contrast() = bestContrast(Colors.Black.kutint, Colors.White.kutint)
 
     /**
      * Converts the color to a hex string.
@@ -289,48 +281,10 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
      */
     fun toHex(includeAlpha: Boolean = alpha < 1f): String =
         withRGB { r, g, b ->
-            val rHex =
-                r
-                    .roundToInt()
-                    .coerceIn(0, 255)
-                    .toString(16)
-                    .padStart(2, '0')
-            val gHex =
-                g
-                    .roundToInt()
-                    .coerceIn(0, 255)
-                    .toString(16)
-                    .padStart(2, '0')
-            val bHex =
-                b
-                    .roundToInt()
-                    .coerceIn(0, 255)
-                    .toString(16)
-                    .padStart(2, '0')
-            val aHex =
-                if (includeAlpha) {
-                    (alpha * 255)
-                        .roundToInt()
-                        .coerceIn(0, 255)
-                        .toString(16)
-                        .padStart(2, '0')
-                } else {
-                    ""
-                }
-            "#$rHex$gHex$bHex$aHex".uppercase()
+            fun Float.toHexPart() = roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
+            val aHex = if (includeAlpha) (alpha * 255).toHexPart() else ""
+            "#${r.toHexPart()}${g.toHexPart()}${b.toHexPart()}$aHex".uppercase()
         }
-
-    companion object {
-        /**
-         * Extension field to convert a [Color.Rgb] color to an [RGB] color.
-         */
-        val Color.Rgb.kutint get() = RGB(this.red.toFloat(), this.green.toFloat(), this.blue.toFloat(), this.alpha.toFloat())
-
-        /**
-         * Extension field to convert a [Color.Hsl] color to an [HSL] color.
-         */
-        val Color.Hsl.kutint get() = HSL(this.hue, this.saturation, this.lightness, this.alpha)
-    }
 }
 
 /**
@@ -388,9 +342,9 @@ data class RGB(
             }
 
         HSL(
-            h = hue % 360f,
-            s = saturation * 100f,
-            l = lightness * 100f,
+            h = (hue % 360f).coerceIn(0f, 360f),
+            s = (saturation * 100f).coerceIn(0f, 100f),
+            l = (lightness * 100f).coerceIn(0f, 100f),
             alpha = alpha,
         )
     }
@@ -422,7 +376,7 @@ data class HSL(
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
     }
 
-    override val color = Color.hsla(h, s, l, alpha)
+    override val color = Color.hsla(h, s / 100, l / 100, alpha)
 
     override val hsl: HSL get() = this
 
@@ -444,9 +398,9 @@ data class HSL(
             }
 
         RGB(
-            r = (rPrime + m) * 255,
-            g = (gPrime + m) * 255,
-            b = (bPrime + m) * 255,
+            r = ((rPrime + m) * 255f).coerceIn(0f, 255f),
+            g = ((gPrime + m) * 255f).coerceIn(0f, 255f),
+            b = ((bPrime + m) * 255f).coerceIn(0f, 255f),
             alpha = alpha,
         )
     }
@@ -544,3 +498,13 @@ fun hsla(
     l: Number,
     alpha: Number = 1f,
 ): HSL = HSL(h.toFloat(), s.toFloat(), l.toFloat(), alpha.toFloat())
+
+/**
+ * Extension field to convert a [Color.Rgb] color to an [RGB] color.
+ */
+val Color.Rgb.kutint get() = RGB(this.red.toFloat(), this.green.toFloat(), this.blue.toFloat(), this.alpha / 255f)
+
+/**
+ * Extension field to convert a [Color.Hsl] color to an [HSL] color.
+ */
+val Color.Hsl.kutint get() = HSL(this.hue, this.saturation * 100f, this.lightness * 100f, this.alpha)

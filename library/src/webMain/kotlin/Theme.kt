@@ -11,8 +11,6 @@ import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.silk.style.CssStyle
 import com.varabyte.kobweb.silk.style.CssStyleScopeBase
 import com.varabyte.kobweb.silk.theme.colors.ColorMode
-import xyz.malefic.kutint.AdaptiveColor.Companion.darkTransform
-import xyz.malefic.kutint.AdaptiveColor.Companion.with
 import kotlin.reflect.KProperty
 
 /**
@@ -57,27 +55,25 @@ data class AdaptiveColor(
      * @return A new [AdaptiveColor] with the transformed colors.
      */
     infix fun map(func: (Kutint<*>) -> Kutint<*>) = AdaptiveColor(func(light), func(dark))
-
-    companion object {
-        /**
-         * Create an [AdaptiveColor] from two [Kutint]s.
-         *
-         * @param dark The color to use in dark mode.
-         *
-         * @return An [AdaptiveColor] with the given colors.
-         */
-        infix fun Kutint<*>.with(dark: Kutint<*>) = AdaptiveColor(this, dark)
-
-        /**
-         * Create an [AdaptiveColor] from a light variant [Kutint] and apply a function to create the dark variant.
-         *
-         * @param func The function to apply to the light variant to create the dark variant.
-         *
-         * @return An [AdaptiveColor] with the given colors.
-         */
-        infix fun Kutint<*>.darkTransform(func: (Kutint<*>) -> Kutint<*>) = AdaptiveColor(this, func(this))
-    }
 }
+
+/**
+ * Create an [AdaptiveColor] from two [Kutint]s.
+ *
+ * @param dark The color to use in dark mode.
+ *
+ * @return An [AdaptiveColor] with the given colors.
+ */
+infix fun Kutint<*>.with(dark: Kutint<*>) = AdaptiveColor(this, dark)
+
+/**
+ * Create an [AdaptiveColor] from a light variant [Kutint] and apply a function to create the dark variant.
+ *
+ * @param func The function to apply to the light variant to create the dark variant.
+ *
+ * @return An [AdaptiveColor] with the given colors.
+ */
+infix fun Kutint<*>.darkTransform(func: (Kutint<*>) -> Kutint<*>) = AdaptiveColor(this, func(this))
 
 /**
  * A delegate for defining colors in a [Palette].
@@ -91,7 +87,7 @@ class ColorDelegate(
     private var _calc by mutableStateOf(initial)
 
     @Suppress("ktlint:standard:backing-property-naming")
-    private val _derived = derivedStateOf(_calc)
+    private val _derived = derivedStateOf { _calc() }
 
     @Suppress("ktlint:standard:backing-property-naming")
     private var _override by mutableStateOf<AdaptiveColor?>(null)
