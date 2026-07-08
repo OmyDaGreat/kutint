@@ -242,12 +242,31 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      */
     fun toHex(includeAlpha: Boolean = alpha < 1f): String =
         withRGB { r, g, b ->
-            val rHex = r.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
-            val gHex = g.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
-            val bHex = b.roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
+            val rHex =
+                r
+                    .roundToInt()
+                    .coerceIn(0, 255)
+                    .toString(16)
+                    .padStart(2, '0')
+            val gHex =
+                g
+                    .roundToInt()
+                    .coerceIn(0, 255)
+                    .toString(16)
+                    .padStart(2, '0')
+            val bHex =
+                b
+                    .roundToInt()
+                    .coerceIn(0, 255)
+                    .toString(16)
+                    .padStart(2, '0')
             val aHex =
                 if (includeAlpha) {
-                    (alpha * 255).roundToInt().coerceIn(0, 255).toString(16).padStart(2, '0')
+                    (alpha * 255)
+                        .roundToInt()
+                        .coerceIn(0, 255)
+                        .toString(16)
+                        .padStart(2, '0')
                 } else {
                     ""
                 }
