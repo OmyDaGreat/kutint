@@ -52,6 +52,33 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
     abstract val color: Color
 
     /**
+     * Utility function for switching to the RGB color space and performing an operation on the channels.
+     *
+     * @param func The function to apply to the RGB channels.
+     *
+     * @return The result of the function.
+     */
+    inline fun <R> withRGB(func: (r: Float, g: Float, b: Float) -> R): R = this.rgb.let { func(it.r, it.g, it.b) }
+
+    /**
+     * Utility function for switching the HSL color space and performing an operation on the channels.
+     *
+     * @param func The function to apply to the HSL channels.
+     *
+     * @return The result of the function.
+     */
+    inline fun <R> withHSL(func: (h: Float, s: Float, l: Float) -> R): R = this.hsl.let { func(it.h, it.s, it.l) }
+
+    /**
+     * Creates a new color with the given alpha value.
+     *
+     * @param newAlpha The new alpha value `0 to 1`.
+     *
+     * @return A new color with the given alpha value.
+     */
+    abstract infix fun withAlpha(newAlpha: Float): Kutint<T>
+
+    /**
      * Tints the color, using a linear interpolation between the original color and white in the RGB color space, by a given amount.
      *
      * @param amount The amount to tint the color `0 to 1`.
@@ -202,9 +229,9 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
         }
 
     /**
-     * Calculates the luminance of the color in the [RGB] color space.
+     * Calculates the relative luminance of the color in the [RGB] color space as defined for WCAG 2.x.
      *
-     * @return The luminance of the color.
+     * @return The luminance of the color `0-1`.
      */
     fun luminance(): Double =
         withRGB { r, g, b ->
@@ -216,31 +243,41 @@ sealed class Kutint<T : ColorSpace> : CSSColorValue {
         }
 
     /**
-     * Utility function for switching to the RGB color space and performing an operation on the channels.
+     * Calculates the WCAG contrast ratio between two colors.
      *
-     * @param func The function to apply to the RGB channels.
+     * @param other The other color to calculate the contrast ratio with.
      *
-     * @return The result of the function.
+     * @return The contrast ratio `1-21`.
      */
-    inline fun <R> withRGB(func: (r: Float, g: Float, b: Float) -> R): R = this.rgb.let { func(it.r, it.g, it.b) }
+    fun contrastRatio(other: Kutint<*>): Double {
+        val lum1 = this.luminance()
+        val lum2 = other.luminance()
+        return (max(lum1, lum2) + 0.05) / (min(lum1, lum2) + 0.05)
+    }
 
     /**
-     * Utility function for switching the HSL color space and performing an operation on the channels.
+     * Calculates the better contrast color between two colors.
      *
-     * @param func The function to apply to the HSL channels.
+     * @param optionA The first color to compare.
+     * @param optionB The second color to compare.
      *
-     * @return The result of the function.
+     * @return The better contrast color.
      */
-    inline fun <R> withHSL(func: (h: Float, s: Float, l: Float) -> R): R = this.hsl.let { func(it.h, it.s, it.l) }
+    fun betterContrast(
+        optionA: Kutint<*>,
+        optionB: Kutint<*>,
+    ) = if (contrastRatio(optionA) > contrastRatio(optionB)) {
+        optionA
+    } else {
+        optionB
+    }
 
     /**
-     * Creates a new color with the given alpha value.
+     * Calculates whether black of white is a better contrast for the color.
      *
-     * @param newAlpha The new alpha value `0 to 1`.
-     *
-     * @return A new color with the given alpha value.
+     * @return The better contrast color.
      */
-    abstract infix fun withAlpha(newAlpha: Float): Kutint<T>
+    fun contrast() = betterContrast(parseHex("#000000"), parseHex("#FFFFFF"))
 
     /**
      * Converts the color to a hex string.

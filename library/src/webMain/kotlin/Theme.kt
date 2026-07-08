@@ -216,10 +216,3 @@ open class MaterialPalette(
     var outline by color { primarySeed.desaturate(0.5f).lighten(0.1f) darkTransform { it.lighten(0.1f) } }
     var error by color(parseHex("#BA1A1A"), parseHex("#FFB4AB"))
 }
-
-/**
- * Utility to choose between black or white as a contrast for the given color.
- *
- * @return The contrast color.
- */
-fun Kutint<*>.contrast() = if (this.luminance() > 0.5) parseHex("#000000") else parseHex("#FFFFFF")
