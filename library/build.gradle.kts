@@ -3,9 +3,9 @@ val dev = project.property("dev") as String
 val mail = project.property("mail") as String
 val devURL = project.property("devURL") as String
 val repo = project.property("repo") as String
-val g = project.property("group") as String
+val g = project.property("g") as String
 val artifact = project.property("artifact") as String
-val v = project.property("version") as String
+val v = project.property("v") as String
 val desc = project.property("desc") as String
 val inception = project.property("inception") as String
 
