@@ -1,3 +1,5 @@
+import com.varabyte.kobweb.gradle.library.util.configAsKobwebLibrary
+
 val user = project.property("user") as String
 val dev = project.property("dev") as String
 val mail = project.property("mail") as String
@@ -10,29 +12,32 @@ val desc = project.property("desc") as String
 val inception = project.property("inception") as String
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.vanniktech.mavenPublish)
-    alias(libs.plugins.dokka)
-    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kobweb.library)
+    alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.dokka)
 }
 
 group = g
 version = v
 
 kotlin {
-    js {
-        nodejs()
-        browser()
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
+    configAsKobwebLibrary()
 
     applyDefaultHierarchyTemplate()
 
     sourceSets {
         jsMain.dependencies {
-            implementation(libs.kermit)
             implementation(libs.compose.html.core)
             implementation(libs.compose.runtime)
+            implementation(libs.kobweb.core)
+            implementation(libs.kobweb.silk)
+            implementation(libs.kermit)
         }
     }
 }

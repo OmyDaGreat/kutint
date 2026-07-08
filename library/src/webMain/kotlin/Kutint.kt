@@ -1,5 +1,6 @@
 package xyz.malefic.kutint
 
+import com.varabyte.kobweb.compose.ui.graphics.Color
 import org.jetbrains.compose.web.css.CSSColorValue
 import kotlin.math.abs
 import kotlin.math.max
@@ -26,10 +27,11 @@ object HSLColorSpace : ColorSpace()
  * Base class for all color types supported by Kutint. See [RGB] and [HSL] for specific implementations.
  *
  * Includes a variety of functions for working with colors in Kobweb and Compose HTML.
- *
- * @property alpha Alpha channel `0-1`
  */
 sealed class KutintColor<T : ColorSpace> : CSSColorValue {
+    /**
+     * The alpha channel of the color, shared across color spaces.
+     */
     abstract val alpha: Float
 
     /**
@@ -41,6 +43,11 @@ sealed class KutintColor<T : ColorSpace> : CSSColorValue {
      * An [HSL] representation of the current color.
      */
     abstract val hsl: HSL
+
+    /**
+     * A [Color] representation of the current color.
+     */
+    abstract val color: Color
 
     /**
      * Tints the color, using a linear interpolation between the original color and white in the RGB color space, by a given amount.
@@ -295,6 +302,8 @@ data class RGB(
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
     }
 
+    override val color = Color.rgba(r, g, b, alpha)
+
     override val rgb: RGB get() = this
 
     override val hsl: HSL by lazy {
@@ -358,6 +367,8 @@ data class HSL(
         require(l in 0f..100f) { "Lightness channel (l) must be between 0f and 100f, got $l" }
         require(alpha in 0f..1f) { "Alpha channel (alpha) must be between 0f and 1f, got $alpha" }
     }
+
+    override val color = Color.hsla(h, s, l, alpha)
 
     override val hsl: HSL get() = this
 
