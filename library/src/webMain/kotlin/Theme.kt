@@ -1,16 +1,27 @@
 package xyz.malefic.kutint
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.varabyte.kobweb.compose.css.StyleVariable
+import com.varabyte.kobweb.compose.foundation.layout.Box
+import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.compose.ui.modifiers.display
+import com.varabyte.kobweb.compose.ui.modifiers.setVariable
 import com.varabyte.kobweb.silk.style.CssStyle
 import com.varabyte.kobweb.silk.style.CssStyleScopeBase
 import com.varabyte.kobweb.silk.theme.colors.ColorMode
+import org.jetbrains.compose.web.css.CSSColorValue
+import org.jetbrains.compose.web.css.DisplayStyle
 import kotlin.reflect.KProperty
 
 /**
@@ -18,34 +29,61 @@ import kotlin.reflect.KProperty
  *
  * @property light The color to use in light mode.
  * @property dark The color to use in dark mode.
+ * @property name The name of the color property, used for CSS variable generation.
  */
 @Immutable
 data class AdaptiveColor(
     val light: Kutint<*>,
     val dark: Kutint<*>,
+    internal val name: String? = null,
 ) {
     /**
      * Color-mode aware accessor for use in [CssStyle] blocks.
      *
-     * @return The color to use in the current color mode.
+     * @return The color to use in the current color mode as a CSS variable or literal.
+     *
+     * @deprecated Use [variable] instead.
      */
-    fun CssStyleScopeBase.value() =
-        when (this.colorMode) {
-            ColorMode.LIGHT -> light
-            ColorMode.DARK -> dark
-        }
+    @Deprecated("Use variable instead", ReplaceWith("variable"))
+    fun CssStyleScopeBase.value(): CSSColorValue = variable
 
     /**
      * Color-mode aware accessor for use in [Composable] functions
      *
      * @return The color to use in the current color mode.
+     *
+     * @deprecated Use [current] instead.
      */
     @Composable
-    fun value() =
-        when (ColorMode.current) {
-            ColorMode.LIGHT -> light
-            ColorMode.DARK -> dark
-        }
+    @Deprecated("Use current instead", ReplaceWith("current"))
+    fun value(): Kutint<*> = current
+
+    /**
+     * The color to use in the current color mode.
+     *
+     * For use within [Composable] functions.
+     */
+    val current: Kutint<*>
+        @Composable
+        get() =
+            when (ColorMode.current) {
+                ColorMode.LIGHT -> light
+                ColorMode.DARK -> dark
+            }
+
+    /**
+     * The color to use in the current color mode as a CSS variable or literal.
+     *
+     * For use within [CssStyle] blocks.
+     */
+    context(scope: CssStyleScopeBase)
+    val variable: CSSColorValue
+        get() =
+            if (name != null) {
+                StyleVariable.PropertyValue<Color>("kutint-$name").value(null)
+            } else {
+                if (scope.colorMode.isLight) light else dark
+            }
 
     /**
      * Apply a function to both the light and dark variants of the color.
@@ -54,7 +92,7 @@ data class AdaptiveColor(
      *
      * @return A new [AdaptiveColor] with the transformed colors.
      */
-    infix fun map(func: (Kutint<*>) -> Kutint<*>) = AdaptiveColor(func(light), func(dark))
+    infix fun map(func: (Kutint<*>) -> Kutint<*>) = AdaptiveColor(func(light), func(dark), name)
 }
 
 /**
@@ -86,13 +124,11 @@ class ColorDelegate(
     @Suppress("ktlint:standard:backing-property-naming")
     private var _calc by mutableStateOf(initial)
 
-    @Suppress("ktlint:standard:backing-property-naming")
-    private val _derived = derivedStateOf { _calc() }
+    private val calc = derivedStateOf { _calc() }
 
-    @Suppress("ktlint:standard:backing-property-naming")
-    private var _override by mutableStateOf<AdaptiveColor?>(null)
+    private var _adaptive by mutableStateOf<AdaptiveColor?>(null)
 
-    val adaptive get() = _override ?: _derived.value
+    val adaptive get() = (_adaptive ?: calc.value).copy(name = name)
 
     operator fun getValue(
         thisRef: Palette,
@@ -104,7 +140,7 @@ class ColorDelegate(
         property: KProperty<*>,
         value: AdaptiveColor,
     ) {
-        _override = value
+        _adaptive = value
         (thisRef as? BasePalette)?.register(name ?: property.name, this)
     }
 
@@ -114,7 +150,7 @@ class ColorDelegate(
         value: () -> AdaptiveColor,
     ) {
         _calc = value
-        _override = null
+        _adaptive = null
         (thisRef as? BasePalette)?.register(name ?: property.name, this)
     }
 
@@ -219,4 +255,83 @@ open class MaterialPalette(
 
     var outline by color { primarySeed.desaturate(0.5f).lighten(0.1f) darkTransform { it.lighten(0.1f) } }
     var error by color(parseHex("#BA1A1A"), parseHex("#FFB4AB"))
+}
+
+/**
+ * A helper to create a type-safe theme accessor for your project.
+ *
+ * @param P The type of the palette.
+ * @property default The default palette to use if none is provided.
+ */
+open class PaletteDefinition<P : Palette>(
+    val default: P,
+) {
+    /**
+     * The [ProvidableCompositionLocal] used to provide the palette to the UI.
+     */
+    val local = staticCompositionLocalOf { default }
+
+    /**
+     * Type-safe access to your palette colors.
+     */
+    val colors: P @Composable get() = local.current
+
+    /**
+     * Accessor for use in static contexts like [CssStyle].
+     * Returns the property definitions (which map to CSS variables in a [CssStyleScopeBase] context).
+     */
+    val static: P get() = default
+
+    /**
+     * Wrapper to provide your specific palette to the UI.
+     *
+     * @param palette The palette to provide.
+     * @param content The composable content to wrap.
+     */
+    @Composable
+    fun Provide(
+        palette: P,
+        content: @Composable () -> Unit,
+    ) {
+        KutintTheme(palette, local = local, content = content)
+    }
+}
+
+/**
+ * Example theme implementation using [MaterialPalette].
+ */
+object MaterialTheme : PaletteDefinition<MaterialPalette>(MaterialPalette(parseHex("#6750A4")))
+
+/**
+ * The core theme wrapper that provides the palette and mirrors colors to CSS variables.
+ *
+ * Rather than using this function directly, it's recommended to use [PaletteDefinition.Provide].
+ *
+ * @param palette The palette to use.
+ * @param local The [androidx.compose.runtime.CompositionLocal] to provide the palette through.
+ * @param content The composable content to wrap.
+ */
+@Composable
+fun <P : Palette> KutintTheme(
+    palette: P,
+    local: ProvidableCompositionLocal<P>,
+    content: @Composable () -> Unit,
+) {
+    val colorMode = ColorMode.current
+
+    val rootModifier =
+        Modifier
+            .display(DisplayStyle.Contents)
+            .run {
+                palette.colors.entries.fold(this) { acc, (name, color) ->
+                    val value = if (colorMode.isLight) color.light else color.dark
+                    acc.setVariable(StyleVariable.PropertyValue("kutint-$name"), value.color)
+                }
+            }
+
+    Box(rootModifier) {
+        CompositionLocalProvider(local provides palette) {
+            content()
+        }
+    }
 }
