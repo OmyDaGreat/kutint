@@ -129,6 +129,14 @@ class ColorDelegate(
 }
 
 /**
+ * Sets one color to be for both light and dark modes.
+ */
+fun color(
+    color: Kutint<*>,
+    name: String? = null,
+) = ColorDelegate(name) { color with color }
+
+/**
  * Convenience function for [ColorDelegate].
  */
 fun color(
