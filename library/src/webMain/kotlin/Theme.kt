@@ -14,7 +14,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.varabyte.kobweb.compose.css.StyleVariable
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.modifiers.display
 import com.varabyte.kobweb.compose.ui.modifiers.setVariable
 import com.varabyte.kobweb.silk.style.CssStyle
@@ -38,27 +37,6 @@ data class AdaptiveColor(
     internal val name: String? = null,
 ) {
     /**
-     * Color-mode aware accessor for use in [CssStyle] blocks.
-     *
-     * @return The color to use in the current color mode as a CSS variable or literal.
-     *
-     * @deprecated Use [variable] instead.
-     */
-    @Deprecated("Use variable instead", ReplaceWith("variable"))
-    fun CssStyleScopeBase.value(): CSSColorValue = variable
-
-    /**
-     * Color-mode aware accessor for use in [Composable] functions
-     *
-     * @return The color to use in the current color mode.
-     *
-     * @deprecated Use [current] instead.
-     */
-    @Composable
-    @Deprecated("Use current instead", ReplaceWith("current"))
-    fun value(): Kutint<*> = current
-
-    /**
      * The color to use in the current color mode.
      *
      * For use within [Composable] functions.
@@ -80,7 +58,7 @@ data class AdaptiveColor(
     val variable: CSSColorValue
         get() =
             if (name != null) {
-                StyleVariable.PropertyValue<Color>("kutint-$name").value(null)
+                StyleVariable.PropertyValue<CSSColorValue>("kutint-$name").value(null)
             } else {
                 if (scope.colorMode.isLight) light else dark
             }
@@ -325,7 +303,7 @@ fun <P : Palette> KutintTheme(
             .run {
                 palette.colors.entries.fold(this) { acc, (name, color) ->
                     val value = if (colorMode.isLight) color.light else color.dark
-                    acc.setVariable(StyleVariable.PropertyValue("kutint-$name"), value.color)
+                    acc.setVariable(StyleVariable.PropertyValue<CSSColorValue>("kutint-$name"), value)
                 }
             }
 

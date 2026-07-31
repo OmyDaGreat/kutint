@@ -13,3 +13,4 @@ xcuserdata
 *.gpg
 kotlin-js-store
 *.properties
+.artifacts
